@@ -70,7 +70,7 @@ typedef GPUShaderProgram <:: u32
                 static-if (constant? vs)
                     static-compile-glsl 420 'vertex (static-typify vs)
                 else
-                    compile-glsl 420 'vertex (static-typify vs)
+                    compile-glsl 420 'vertex (typify vs)
                 "#extension GL_ARB_shader_storage_buffer_object : require\n"
         let vertex-module =
             compile-shader
@@ -80,7 +80,7 @@ typedef GPUShaderProgram <:: u32
             static-if (constant? fs)
                 (static-compile-glsl 420 'fragment (static-typify fs)) as rawstring
             else
-                (compile-glsl 420 'fragment (static-typify fs)) as rawstring
+                (compile-glsl 420 'fragment (typify fs)) as rawstring
         let fragment-module =
             compile-shader
                 fsource
