@@ -4,6 +4,9 @@ run-stage;
 
 import .window
 import .gl
+import .wrapper
+
+let file-watcher = (import .radlib.file-watcher)
 let _gl = (import .FFI.glad)
 
 window.init;
@@ -37,10 +40,26 @@ let default-vshader default-fshader =
 global shader-program =
     gl.GPUShaderProgram default-vshader default-fshader
 
-_gl.UseProgram shader-program
+fn update-shader ()
+    let frag = (wrapper.wrap-shader "test.sc")
+    shader-program = (gl.GPUShaderProgram default-vshader frag)
+    _gl.UseProgram shader-program
+
+update-shader;
+
+using file-watcher
+global fw = (FileWatcher)
+'watch-file fw "test.sc" (EventKind.MODIFIED)
+    fn "callback" ()
+        try
+            update-shader;
+            ;
+        except (ex)
+            'dump ex
 
 while (not (window.closed?))
     window.poll-events;
+    'poll-events fw
     gl.clear 0.017 0.017 0.017 1.0
     _gl.DrawArrays _gl.GL_TRIANGLES 0 6
     window.flip;
