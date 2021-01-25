@@ -3,6 +3,7 @@ using import enum
 
 let gl = (import .FFI.glad)
 import .io
+using import .radlib.core-extensions
 
 spice patch-shader (shader patch)
     shader as:= string
