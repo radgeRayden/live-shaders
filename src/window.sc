@@ -3,7 +3,7 @@ global main-window : (mutable@ glfw.window)
 
 fn init ()
     glfw.Init;
-    glfw.WindowHint glfw.GLFW_RESIZABLE false
+    glfw.WindowHint glfw.GLFW_RESIZABLE true
     glfw.WindowHint glfw.GLFW_CLIENT_API glfw.GLFW_OPENGL_API
     glfw.WindowHint glfw.GLFW_DOUBLEBUFFER true
     glfw.WindowHint glfw.GLFW_OPENGL_FORWARD_COMPAT true

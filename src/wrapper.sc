@@ -23,15 +23,17 @@ fn wrap-module (expr eval-scope)
             .. ((sc_anchor_path expr-anchor) as string) ":"
                 tostring `[(sc_anchor_lineno expr-anchor)]
         sc_template_set_name wrapf (Symbol path)
-        let wrapf = (sc_typify_template wrapf 0 (undef TypeArrayPointer))
-        let f =
-            do
-                hide-traceback;
-                sc_compile wrapf
-                    compile-flag-cache
-                    # can't use this flag yet because it breaks code
-                    #| compile-flag-cache compile-flag-O2
-        if (('typeof f) == StageFunctionType)
+        let typified-wrapf = (sc_typify_template wrapf 0 (undef TypeArrayPointer))
+        # print ('typeof wrapf)
+
+        if (('typeof typified-wrapf) == StageFunctionType)
+            let f =
+                do
+                    hide-traceback;
+                    sc_compile typified-wrapf
+                        compile-flag-cache
+                        # can't use this flag yet because it breaks code
+                        #| compile-flag-cache compile-flag-O2
             let fptr = (f as StageFunctionType)
             let result =
                 do
@@ -40,14 +42,22 @@ fn wrap-module (expr eval-scope)
             let result = (bitcast result Value)
             repeat result ('anchor result)
         else
-            let fptr = (f as ModuleFunctionType)
-            let result =
-                do
-                    hide-traceback;
-                    fptr;
-            break result
+            let wrapf =
+                spice-quote
+                    fn "exec-module-stage" ()
+                        spice-unquote
+                            'tag `(f) expr-anchor
+            break (sc_prove wrapf)
 
-fn load-module (module-name module-path opts...)
+let shader-scope =
+    ..
+        (sc_get_globals)
+        import glsl
+        import glm
+
+run-stage;
+
+fn _load-module (module-name module-path opts...)
     if (not (sc_is_file module-path))
         hide-traceback;
         error
@@ -62,23 +72,23 @@ fn load-module (module-name module-path opts...)
         'bind-symbols
             va-option scope opts...
                 do
-                    sc_scope_new_subscope_with_docstring (sc_get_globals) ""
+                    sc_scope_new_subscope_with_docstring shader-scope ""
             main-module? =
                 va-option main-module? opts... false
             module-path = module-path
             module-dir = module-dir
             module-name = module-name
+
     try
         hide-traceback;
-        exec-module expr (Scope eval-scope)
+        wrap-module expr (Scope eval-scope)
     except (err)
         hide-traceback;
         error@+ err unknown-anchor
             "while loading module " .. module-path
 
-fn wrap-shader (path)
-    fn ()
-        ;
+fn wrap-shader (name path)
+    (_load-module name path) as Closure
 
 do
     let wrap-shader

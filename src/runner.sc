@@ -41,7 +41,7 @@ global shader-program =
     gl.GPUShaderProgram default-vshader default-fshader
 
 fn update-shader ()
-    let frag = (wrapper.wrap-shader "test.sc")
+    let frag = (wrapper.wrap-shader "test" "test.sc")
     shader-program = (gl.GPUShaderProgram default-vshader frag)
     _gl.UseProgram shader-program
 
