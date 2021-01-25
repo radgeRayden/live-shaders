@@ -49,15 +49,9 @@ fn wrap-module (expr eval-scope)
                             'tag `(f) expr-anchor
             break (sc_prove wrapf)
 
-let shader-scope =
-    ..
-        (sc_get_globals)
-        import glsl
-        import glm
-
 run-stage;
 
-fn _load-module (module-name module-path opts...)
+fn _load-module (module-name module-path scope)
     if (not (sc_is_file module-path))
         hide-traceback;
         error
@@ -70,11 +64,8 @@ fn _load-module (module-name module-path opts...)
             sc_parse_from_path module-path
     let eval-scope =
         'bind-symbols
-            va-option scope opts...
-                do
-                    sc_scope_new_subscope_with_docstring shader-scope ""
-            main-module? =
-                va-option main-module? opts... false
+            scope
+            main-module? = true
             module-path = module-path
             module-dir = module-dir
             module-name = module-name
@@ -87,8 +78,8 @@ fn _load-module (module-name module-path opts...)
         error@+ err unknown-anchor
             "while loading module " .. module-path
 
-fn wrap-shader (name path)
-    (_load-module name path) as Closure
+fn wrap-shader (name path scope)
+    (_load-module name path scope) as Closure
 
 do
     let wrap-shader
