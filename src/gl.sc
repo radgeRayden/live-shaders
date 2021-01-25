@@ -67,13 +67,20 @@ typedef GPUShaderProgram <:: u32
         # TODO: move this out of here, maybe we need a variant that takes strings
         let vsource =
             patch-shader
-                static-compile-glsl 420 'vertex (static-typify vs)
+                static-if (constant? vs)
+                    static-compile-glsl 420 'vertex (static-typify vs)
+                else
+                    compile-glsl 420 'vertex (static-typify vs)
                 "#extension GL_ARB_shader_storage_buffer_object : require\n"
         let vertex-module =
             compile-shader
                 vsource as rawstring
                 gl.GL_VERTEX_SHADER
-        fsource := (static-compile-glsl 420 'fragment (static-typify fs)) as rawstring
+        let fsource =
+            static-if (constant? fs)
+                (static-compile-glsl 420 'fragment (static-typify fs)) as rawstring
+            else
+                (compile-glsl 420 'fragment (static-typify fs)) as rawstring
         let fragment-module =
             compile-shader
                 fsource
