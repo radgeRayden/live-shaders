@@ -143,14 +143,10 @@ fn init ()
         default
             ;
 
-        print
-            "source:"
+        io.log "source: %s | type: %s | severity: %s | message: %s\n"
             (gl-debug-source source)
-            "| type:"
             (gl-debug-type _type)
-            "| severity:"
             (gl-debug-severity severity)
-            "| message:"
             message
         ;
 
