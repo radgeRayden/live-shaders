@@ -1,0 +1,19 @@
+* Bugs [0/1]
++ [ ] iTime doesn't have a starting time
+* Features [0/4]
++ [-] shadertoy variables for Image Shaders [2/10]
+  + [X] vec3 iResolution
+  + [X] float iTime
+  + [ ] float iTimeDelta (seconds)
+  + [ ] float iFrame  (frame count from beginning)
+  + [ ] float iChannelTime[4] (?)
+  + [ ] vec4 iMouse
+  + [ ] vec4 iDate
+  + [ ] float iSampleRate
+  + [ ] vec3 iChannelResolution (?)
+  + [ ] samplerXX iChannel(0..3) (?)
++ [ ] info bar showing current time, frame, button for restarting shader [0/2]
+  + [ ] add imgui integration
+  + [ ] shader initial state setting
++ [ ] ability to pop off shader into a virtual window
++ [ ] support for internal resolution
