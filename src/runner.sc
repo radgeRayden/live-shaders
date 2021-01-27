@@ -64,9 +64,17 @@ let default-vshader default-fshader =
             gl_Position = (vec4 position 0 1)
 
         fn frag ()
-            out fcolor : vec4
+            in fragCoord : vec2
                 location = 0
-            fcolor = (vec4 0.017 0.017 0.017 1)
+            out fragColor : vec4
+                location = 0
+
+            uniform iResolution : vec3
+            uniform iTime : f32
+            uniform iTimeDelta : f32
+            uniform iFrame : f32
+            uniform iMouse : vec4
+            fragColor = (vec4 0.017 0.017 0.017 1)
 
         _ vertex frag
 
