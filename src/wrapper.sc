@@ -24,7 +24,6 @@ fn wrap-module (expr eval-scope)
                 tostring `[(sc_anchor_lineno expr-anchor)]
         sc_template_set_name wrapf (Symbol path)
         let typified-wrapf = (sc_typify_template wrapf 0 (undef TypeArrayPointer))
-        # print ('typeof wrapf)
 
         if (('typeof typified-wrapf) == StageFunctionType)
             let f =

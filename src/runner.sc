@@ -17,7 +17,6 @@ gl.init;
 
 let shader-scope =
     ..
-        (sc_get_globals)
         import glsl
         import glm
         do
@@ -36,6 +35,7 @@ let shader-scope =
                     uniform iFrame : f32
                     uniform iMouse : vec4
                 locals;
+        sc_get_globals;
 
 run-stage;
 
