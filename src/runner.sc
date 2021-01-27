@@ -135,8 +135,12 @@ while (not (window.closed?))
     local mousex : f64
     local mousey : f64
     let mouse-button-state = (glfw.GetMouseButton window.main-window glfw.GLFW_MOUSE_BUTTON_1)
+
     if (mouse-button-state == glfw.GLFW_PRESS)
         glfw.GetCursorPos window.main-window &mousex &mousey
+        # adjust for 0,0 at bottom-left
+        mousey = ((wheight as f64) - mousey)
+
         mousex = (clamp (mousex as f32) 0.0 (wwidth as f32))
         mousey = (clamp (mousey as f32) 0.0 (wheight as f32))
 
