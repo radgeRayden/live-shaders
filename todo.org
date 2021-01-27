@@ -1,6 +1,6 @@
-* Bugs [0/1]
-+ [ ] iTime doesn't have a starting time
-* Features [0/4]
+* Bugs [1/1]
++ [X] iTime doesn't have a starting time
+* Features [0/5]
 + [-] shadertoy variables for Image Shaders [2/10]
   + [X] vec3 iResolution
   + [X] float iTime
@@ -17,3 +17,12 @@
   + [ ] shader initial state setting
 + [ ] ability to pop off shader into a virtual window
 + [ ] support for internal resolution
++ [ ] pass shader file(s) as CLI argument
++ [ ] support for non-scopes GLSL
++ [ ] shadertoy compatible export
+* Improvements
++ [ ] modernization :: change uniform interface to use a Uniform Buffer @opengl
++ [ ] wrap all openGL calls in module
+* Distribution
++ [ ] Linux appimage
++ [ ] Implement windows file watching
