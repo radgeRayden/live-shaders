@@ -61,33 +61,44 @@ typedef GPUShaderProgram <:: u32
 
     inline... __typecall (cls)
         bitcast 0 this-type
+
     case (cls handle)
         bitcast handle this-type
-    case (cls vs fs)
-        # TODO: move this out of here, maybe we need a variant that takes strings
-        let vsource =
-            patch-shader
-                static-if (constant? vs)
-                    static-compile-glsl 420 'vertex (static-typify vs)
-                else
-                    compile-glsl 420 'vertex (typify vs)
-                "#extension GL_ARB_shader_storage_buffer_object : require\n"
+
+    case (cls, vsource : String, fsource : String)
         let vertex-module =
             compile-shader
                 vsource as rawstring
                 gl.GL_VERTEX_SHADER
-        let fsource =
-            static-if (constant? fs)
-                (static-compile-glsl 420 'fragment (static-typify fs)) as rawstring
-            else
-                (compile-glsl 420 'fragment (typify fs)) as rawstring
         let fragment-module =
             compile-shader
                 fsource
                 gl.GL_FRAGMENT_SHADER
-
         let program = (link-program vertex-module fragment-module)
         bitcast program this-type
+
+    case (cls vs fs)
+        let vsource =
+            static-if ((typeof vs) == Closure)
+                static-if (constant? vs)
+                    let src = (static-compile-glsl 420 'vertex (static-typify vs))
+                    String src (countof src)
+                else
+                    let src = (compile-glsl 420 'vertex (typify vs))
+                    String src (countof src)
+            else
+                imply vs String
+        let fsource =
+            static-if ((typeof fs) == Closure)
+                static-if (constant? fs)
+                    let src = (static-compile-glsl 420 'fragment (static-typify fs))
+                    String src (countof src)
+                else
+                    let src = (compile-glsl 420 'fragment (typify fs))
+                    String src (countof src)
+            else
+                imply fs String
+        this-function cls vsource fsource
 
     inline __imply (selfT otherT)
         static-if (otherT == (storageof this-type))
@@ -164,7 +175,7 @@ fn init ()
     # gl.Enable gl.GL_MULTISAMPLE
     gl.Enable gl.GL_FRAMEBUFFER_SRGB
     # TODO: add some colors to this
-    gl.DebugMessageCallbackARB openGL-error-callback null
+    # gl.DebugMessageCallbackARB openGL-error-callback null
     local VAO : gl.GLuint
     gl.GenVertexArrays 1 &VAO
     gl.BindVertexArray VAO

@@ -29,8 +29,6 @@ fn get-date ()
         day = cdate.tm_mday
         second = fsec
 
-print ((get-date) . second)
-
 do
     let get-date Date
     locals;
