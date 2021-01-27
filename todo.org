@@ -1,10 +1,10 @@
 * Bugs [1/1]
 + [X] iTime doesn't have a starting time
-* Features [0/5]
-+ [-] shadertoy variables for Image Shaders [2/10]
+* Features [0/7]
++ [-] shadertoy variables for Image Shaders [3/10]
   + [X] vec3 iResolution
   + [X] float iTime
-  + [ ] float iTimeDelta (seconds)
+  + [X] float iTimeDelta (seconds)
   + [ ] float iFrame  (frame count from beginning)
   + [ ] float iChannelTime[4] (?)
   + [ ] vec4 iMouse
