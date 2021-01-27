@@ -72,6 +72,7 @@ let default-vshader default-fshader =
 
 global shader-program =
     gl.GPUShaderProgram default-vshader default-fshader
+_gl.UseProgram shader-program
 
 global uniforms :
     struct UniformLocations
@@ -83,7 +84,6 @@ global uniforms :
 
 fn update-shader ()
     let frag = (wrapper.wrap-shader "test" "test.sc" shader-scope)
-    print "here"
     shader-program = (gl.GPUShaderProgram default-vshader frag)
 
     _gl.UseProgram shader-program
@@ -98,18 +98,15 @@ fn update-shader ()
     uniforms.iMouse =
         _gl.GetUniformLocation shader-program "iMouse"
 
-update-shader;
+fn update-callback ()
+    try (update-shader)
+    except (ex) ('dump ex)
+update-callback;
 glfw.SetTime 0:f64
 
 using file-watcher
 global fw = (FileWatcher)
-'watch-file fw "test.sc" (EventKind.MODIFIED)
-    fn "callback" ()
-        try
-            update-shader;
-            ;
-        except (ex)
-            'dump ex
+'watch-file fw "test.sc" (EventKind.MODIFIED) update-callback
 
 global last-frame-time : f32
 global frame-count : u32
