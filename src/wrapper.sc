@@ -53,8 +53,6 @@ fn wrap-module (expr eval-scope)
                             'tag `(f) expr-anchor
             break (sc_prove wrapf)
 
-run-stage;
-
 fn _load-module (module-name module-path scope)
     if (not (sc_is_file module-path))
         hide-traceback;
