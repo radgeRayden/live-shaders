@@ -1,5 +1,6 @@
-* Bugs [1/1]
+* Bugs [1/2]
 + [X] iTime doesn't have a starting time
++ [ ] unimplemented intrinsics (eg. smoothstep) on CPU cause an error because of sc_eval
 * Features [0/7]
 + [-] shadertoy variables for Image Shaders [4/10]
   + [X] vec3 iResolution
