@@ -10,7 +10,7 @@ fn wrap-module (expr eval-scope)
             hide-traceback;
             sc_eval expr-anchor (expr as list) eval-scope
     loop (f expr-anchor = f expr-anchor)
-        # build a wrapper
+        # wrap in a function and typify so we can decide whether this is a compile stage or module
         let wrapf =
             spice-quote
                 fn "exec-module-stage" ()
@@ -26,6 +26,8 @@ fn wrap-module (expr eval-scope)
         let typified-wrapf = (sc_typify_template wrapf 0 (undef TypeArrayPointer))
 
         if (('typeof typified-wrapf) == StageFunctionType)
+            # compile stages are immediately executed as usual. This way we can do some configuration in the
+            # shader "header", as well as making ad-hoc macros available.
             let f =
                 do
                     hide-traceback;
@@ -40,6 +42,9 @@ fn wrap-module (expr eval-scope)
                     fptr;
             let result = (bitcast result Value)
             repeat result ('anchor result)
+        # if this is a module, we want to delay compilation so it can be turned into a shader.
+        # For this purpose we wrap it as a more suitable closure, that doesn't raise Error nor returns anything.
+        # We then return the template, so it can be forwarded to the shader constructor.
         else
             let wrapf =
                 spice-quote
