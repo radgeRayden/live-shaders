@@ -41,48 +41,7 @@ let shader-scope =
 
 run-stage;
 
-let default-vshader default-fshader =
-    do
-        using import glsl
-        using import glm
-        fn vertex ()
-            let tl bl br tr =
-                # 0 -- 3
-                # |    |
-                # 1 -- 2
-                vec2 -1  1
-                vec2 -1 -1
-                vec2  1 -1
-                vec2  1  1
-            local quad =
-                arrayof vec2 tl bl br br tr tl
-            position := quad @ gl_VertexID
-
-            uniform iResolution : vec3
-            out fragCoord : vec2
-                location = 0
-
-            fragCoord = (iResolution.xy * ((position + 1) / 2))
-            gl_Position = (vec4 position 0 1)
-
-        fn frag ()
-            in fragCoord : vec2
-                location = 0
-            out fragColor : vec4
-                location = 0
-
-            uniform iResolution : vec3
-            uniform iTime : f32
-            uniform iTimeDelta : f32
-            uniform iFrame : f32
-            uniform iMouse : vec4
-            uniform iDate : vec4
-            fragColor = (vec4 0.017 0.017 0.017 1)
-
-        _ vertex frag
-
-global shader-program =
-    gl.GPUShaderProgram default-vshader default-fshader
+global shader-program = (wrapper.default-shader)
 _gl.UseProgram shader-program
 
 global uniforms :
@@ -95,8 +54,7 @@ global uniforms :
         iDate : i32
 
 fn update-shader ()
-    let frag = (wrapper.wrap-shader "test" "test.sc" shader-scope)
-    shader-program = (gl.GPUShaderProgram default-vshader frag)
+    shader-program = (wrapper.wrap-shader "test.sc" shader-scope)
 
     _gl.UseProgram shader-program
     uniforms.iResolution =

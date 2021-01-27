@@ -1,5 +1,4 @@
-# Parses and compile a module wrapped as a GLSL shader.
-# Code largely copied from core.sc
+import .gl
 
 fn wrap-module (expr eval-scope)
     let ModuleFunctionType = (pointer (raises (function Value) Error))
@@ -80,9 +79,76 @@ fn _load-module (module-name module-path scope)
         error@+ err unknown-anchor
             "while loading module " .. module-path
 
-fn wrap-shader (name path scope)
-    (_load-module name path scope) as Closure
+let default-vshader default-fshader =
+    do
+        using import glsl
+        using import glm
+        fn vertex ()
+            let tl bl br tr =
+                # 0 -- 3
+                # |    |
+                # 1 -- 2
+                vec2 -1  1
+                vec2 -1 -1
+                vec2  1 -1
+                vec2  1  1
+            local quad =
+                arrayof vec2 tl bl br br tr tl
+            position := quad @ gl_VertexID
+
+            uniform iResolution : vec3
+            out fragCoord : vec2
+                location = 0
+
+            fragCoord = (iResolution.xy * ((position + 1) / 2))
+            gl_Position = (vec4 position 0 1)
+
+        fn frag ()
+            in fragCoord : vec2
+                location = 0
+            out fragColor : vec4
+                location = 0
+
+            uniform iResolution : vec3
+            uniform iTime : f32
+            uniform iTimeDelta : f32
+            uniform iFrame : f32
+            uniform iMouse : vec4
+            uniform iDate : vec4
+            fragColor = (vec4 0.017 0.017 0.017 1)
+
+        _ vertex frag
+
+fn default-shader ()
+    gl.GPUShaderProgram default-vshader default-fshader
+
+fn wrap-shader (path scope)
+    if (not (sc_is_file path))
+        error (.. "file not found: " path)
+
+    # get shader extension
+    let match? start end = ('match? "\\.[A-Za-z]+$" path)
+    let shader-kind =
+        if match?
+            # +1 to skip the dot
+            let ext = (rslice path (start + 1))
+            match ext
+            case "frag"
+                'glsl
+            case "glsl"
+                'glsl
+            case "sc"
+                'scopes
+            default
+                error "unrecognized file extension. Must be one of: .glsl .frag .sc"
+        else
+            error "invalid file path"
+    if (shader-kind == 'scopes)
+        gl.GPUShaderProgram default-vshader
+            (_load-module path path scope) as Closure
+    else
+        unreachable;
 
 do
-    let wrap-shader
+    let default-shader wrap-shader
     locals;
