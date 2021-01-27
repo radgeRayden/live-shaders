@@ -32,6 +32,7 @@ let shader-scope =
                     uniform iResolution : vec3
                     uniform iTime : f32
                     uniform iTimeDelta : f32
+                    uniform iFrame : f32
                 locals;
 
 run-stage;
@@ -75,6 +76,7 @@ global uniforms :
         iResolution : i32
         iTime : i32
         iTimeDelta : i32
+        iFrame : i32
 
 fn update-shader ()
     let frag = (wrapper.wrap-shader "test" "test.sc" shader-scope)
@@ -87,6 +89,8 @@ fn update-shader ()
         _gl.GetUniformLocation shader-program "iTime"
     uniforms.iTimeDelta =
         _gl.GetUniformLocation shader-program "iTimeDelta"
+    uniforms.iFrame =
+        _gl.GetUniformLocation shader-program "iFrame"
 
 update-shader;
 glfw.SetTime 0:f64
@@ -102,6 +106,7 @@ global fw = (FileWatcher)
             'dump ex
 
 global last-frame-time : f32
+global frame-count : u32
 while (not (window.closed?))
     window.poll-events;
     'poll-events fw
@@ -109,15 +114,18 @@ while (not (window.closed?))
     let wwidth wheight = (window.size)
     _gl.Viewport 0 0 wwidth wheight
 
+    # update frame metadata
     let current-time = ((glfw.GetTime) as f32)
     let delta-time = (current-time - last-frame-time)
     last-frame-time = current-time
+    frame-count += 1
 
     # update uniforms
     using import glm
     _gl.Uniform3f uniforms.iResolution (wwidth as f32) (wheight as f32) 1
     _gl.Uniform1f uniforms.iTime current-time
     _gl.Uniform1f uniforms.iTimeDelta delta-time
+    _gl.Uniform1f uniforms.iFrame (frame-count as f32)
 
     gl.clear 0.017 0.017 0.017 1.0
     _gl.DrawArrays _gl.GL_TRIANGLES 0 6
