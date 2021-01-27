@@ -3,6 +3,7 @@ load-library "libglfw.so"
 run-stage;
 
 using import struct
+using import glm
 import .window
 import .gl
 import .wrapper
@@ -33,6 +34,7 @@ let shader-scope =
                     uniform iTime : f32
                     uniform iTimeDelta : f32
                     uniform iFrame : f32
+                    uniform iMouse : vec4
                 locals;
 
 run-stage;
@@ -77,9 +79,11 @@ global uniforms :
         iTime : i32
         iTimeDelta : i32
         iFrame : i32
+        iMouse : i32
 
 fn update-shader ()
     let frag = (wrapper.wrap-shader "test" "test.sc" shader-scope)
+    print "here"
     shader-program = (gl.GPUShaderProgram default-vshader frag)
 
     _gl.UseProgram shader-program
@@ -91,6 +95,8 @@ fn update-shader ()
         _gl.GetUniformLocation shader-program "iTimeDelta"
     uniforms.iFrame =
         _gl.GetUniformLocation shader-program "iFrame"
+    uniforms.iMouse =
+        _gl.GetUniformLocation shader-program "iMouse"
 
 update-shader;
 glfw.SetTime 0:f64
@@ -107,6 +113,7 @@ global fw = (FileWatcher)
 
 global last-frame-time : f32
 global frame-count : u32
+global mouse-drag-start : vec2
 while (not (window.closed?))
     window.poll-events;
     'poll-events fw
@@ -114,11 +121,19 @@ while (not (window.closed?))
     let wwidth wheight = (window.size)
     _gl.Viewport 0 0 wwidth wheight
 
-    # update frame metadata
+    # update input data
     let current-time = ((glfw.GetTime) as f32)
     let delta-time = (current-time - last-frame-time)
     last-frame-time = current-time
     frame-count += 1
+
+    local mousex : f64
+    local mousey : f64
+    let mouse-button-state = (glfw.GetMouseButton window.main-window glfw.GLFW_MOUSE_BUTTON_1)
+    if (mouse-button-state == glfw.GLFW_PRESS)
+        glfw.GetCursorPos window.main-window &mousex &mousey
+        mousex = (clamp (mousex as f32) 0.0 (wwidth as f32))
+        mousey = (clamp (mousey as f32) 0.0 (wheight as f32))
 
     # update uniforms
     using import glm
@@ -126,6 +141,11 @@ while (not (window.closed?))
     _gl.Uniform1f uniforms.iTime current-time
     _gl.Uniform1f uniforms.iTimeDelta delta-time
     _gl.Uniform1f uniforms.iFrame (frame-count as f32)
+    _gl.Uniform4f uniforms.iMouse
+        mousex as f32
+        mousey as f32
+        0.0
+        0.0
 
     gl.clear 0.017 0.017 0.017 1.0
     _gl.DrawArrays _gl.GL_TRIANGLES 0 6

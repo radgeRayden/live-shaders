@@ -7,7 +7,7 @@
   + [X] float iTimeDelta (seconds)
   + [X] float iFrame  (frame count from beginning)
   + [ ] float iChannelTime[4] (?)
-  + [ ] vec4 iMouse
+  + [-] vec4 iMouse
   + [ ] vec4 iDate
   + [ ] float iSampleRate
   + [ ] vec3 iChannelResolution (?)
