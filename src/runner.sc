@@ -7,6 +7,7 @@ using import glm
 import .window
 import .gl
 import .wrapper
+import .date
 
 let file-watcher = (import .radlib.file-watcher)
 let _gl = (import .FFI.glad)
@@ -34,6 +35,7 @@ let shader-scope =
                     uniform iTimeDelta : f32
                     uniform iFrame : f32
                     uniform iMouse : vec4
+                    uniform iDate : vec4
                 locals;
         sc_get_globals;
 
@@ -74,6 +76,7 @@ let default-vshader default-fshader =
             uniform iTimeDelta : f32
             uniform iFrame : f32
             uniform iMouse : vec4
+            uniform iDate : vec4
             fragColor = (vec4 0.017 0.017 0.017 1)
 
         _ vertex frag
@@ -89,6 +92,7 @@ global uniforms :
         iTimeDelta : i32
         iFrame : i32
         iMouse : i32
+        iDate : i32
 
 fn update-shader ()
     let frag = (wrapper.wrap-shader "test" "test.sc" shader-scope)
@@ -105,6 +109,8 @@ fn update-shader ()
         _gl.GetUniformLocation shader-program "iFrame"
     uniforms.iMouse =
         _gl.GetUniformLocation shader-program "iMouse"
+    uniforms.iDate =
+        _gl.GetUniformLocation shader-program "iDate"
 
 fn update-callback ()
     try (update-shader)
@@ -162,18 +168,29 @@ while (not (window.closed?))
         # set "mouse down" status
         mouse-drag-start.x = (- (abs mouse-drag-start.x))
 
+    let cur-date = (date.get-date)
+
     # update uniforms
+    # ================================================================================
     using import glm
     _gl.Uniform3f uniforms.iResolution (wwidth as f32) (wheight as f32) 1
     _gl.Uniform1f uniforms.iTime current-time
     _gl.Uniform1f uniforms.iTimeDelta delta-time
     _gl.Uniform1f uniforms.iFrame (frame-count as f32)
+
     _gl.Uniform4f uniforms.iMouse
         mouse-current-drag.x
         mouse-current-drag.y
         mouse-drag-start.x
         mouse-drag-start.y
 
+    _gl.Uniform4f uniforms.iDate
+        cur-date.year as f32
+        cur-date.month as f32
+        cur-date.day as f32
+        cur-date.second
+
+    # =================================================================================
     gl.clear 0.017 0.017 0.017 1.0
     _gl.DrawArrays _gl.GL_TRIANGLES 0 6
     window.flip;

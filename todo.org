@@ -3,14 +3,14 @@
 + [X] unimplemented intrinsics (eg. smoothstep) on CPU cause an error because of sc_eval
   - Turned out to be about wrong join order of scopes; the global (unimplemented) smoothstep was shadowing the SPIR-V one.
 * Features [0/7]
-+ [-] shadertoy variables for Image Shaders [5/10]
++ [-] shadertoy variables for Image Shaders [6/10]
   + [X] vec3 iResolution
   + [X] float iTime
   + [X] float iTimeDelta (seconds)
   + [X] float iFrame  (frame count from beginning)
   + [ ] float iChannelTime[4] (?)
   + [X] vec4 iMouse
-  + [ ] vec4 iDate
+  + [X] vec4 iDate
   + [ ] float iSampleRate
   + [ ] vec3 iChannelResolution (?)
   + [ ] samplerXX iChannel(0..3) (?)
@@ -23,7 +23,7 @@
 + [ ] support for non-scopes GLSL
 + [ ] shadertoy compatible export
 * Improvements [0/2]
-+ [ ] modernization :: change uniform interface to use a Uniform Buffer @opengl
++ [ ] change uniform interface to use a Uniform Buffer @opengl
 + [ ] wrap all openGL calls in module
 * Distribution [0/2]
 + [ ] Linux appimage
