@@ -1,14 +1,15 @@
-* Bugs [1/2]
+* Bugs [2/2]
 + [X] iTime doesn't have a starting time
-+ [ ] unimplemented intrinsics (eg. smoothstep) on CPU cause an error because of sc_eval
++ [X] unimplemented intrinsics (eg. smoothstep) on CPU cause an error because of sc_eval
+  - Turned out to be about wrong join order of scopes; the global (unimplemented) smoothstep was shadowing the SPIR-V one.
 * Features [0/7]
-+ [-] shadertoy variables for Image Shaders [4/10]
++ [-] shadertoy variables for Image Shaders [5/10]
   + [X] vec3 iResolution
   + [X] float iTime
   + [X] float iTimeDelta (seconds)
   + [X] float iFrame  (frame count from beginning)
   + [ ] float iChannelTime[4] (?)
-  + [-] vec4 iMouse
+  + [X] vec4 iMouse
   + [ ] vec4 iDate
   + [ ] float iSampleRate
   + [ ] vec3 iChannelResolution (?)
@@ -21,9 +22,9 @@
 + [ ] pass shader file(s) as CLI argument
 + [ ] support for non-scopes GLSL
 + [ ] shadertoy compatible export
-* Improvements
+* Improvements [0/2]
 + [ ] modernization :: change uniform interface to use a Uniform Buffer @opengl
 + [ ] wrap all openGL calls in module
-* Distribution
+* Distribution [0/2]
 + [ ] Linux appimage
 + [ ] Implement windows file watching

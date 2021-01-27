@@ -118,8 +118,31 @@ global fw = (FileWatcher)
 
 global last-frame-time : f32
 global frame-count : u32
-global mouse-drag-start : vec2
+global mouse-drag-start : vec2 -999 -999
+global mouse-current-drag : vec2 -999 -999
+
+fn mouse-position ()
+    let wwidth wheight = (window.size)
+    local mousex : f64
+    local mousey : f64
+    glfw.GetCursorPos window.main-window &mousex &mousey
+    # adjust for 0,0 at bottom-left
+    mousey = ((wheight as f64) - mousey)
+
+    mousex = (clamp (mousex as f32) 0.0 (wwidth as f32))
+    mousey = (clamp (mousey as f32) 0.0 (wheight as f32))
+    _ mousex mousey
+
+glfw.SetMouseButtonCallback window.main-window
+    fn "mouse-button-callback" (window button action mods)
+        if ((button == glfw.GLFW_MOUSE_BUTTON_1) and (action == glfw.GLFW_PRESS))
+            mouse-drag-start = (vec2 (mouse-position))
+
 while (not (window.closed?))
+    # reset "mouse pressed" event after end of previous frame
+    # the callback that changes the mouse state is called in poll-events
+    mouse-drag-start.y = (- (abs mouse-drag-start.y))
+
     window.poll-events;
     'poll-events fw
 
@@ -132,17 +155,12 @@ while (not (window.closed?))
     last-frame-time = current-time
     frame-count += 1
 
-    local mousex : f64
-    local mousey : f64
     let mouse-button-state = (glfw.GetMouseButton window.main-window glfw.GLFW_MOUSE_BUTTON_1)
-
     if (mouse-button-state == glfw.GLFW_PRESS)
-        glfw.GetCursorPos window.main-window &mousex &mousey
-        # adjust for 0,0 at bottom-left
-        mousey = ((wheight as f64) - mousey)
-
-        mousex = (clamp (mousex as f32) 0.0 (wwidth as f32))
-        mousey = (clamp (mousey as f32) 0.0 (wheight as f32))
+        mouse-current-drag = (vec2 (mouse-position))
+    else
+        # set "mouse down" status
+        mouse-drag-start.x = (- (abs mouse-drag-start.x))
 
     # update uniforms
     using import glm
@@ -151,10 +169,10 @@ while (not (window.closed?))
     _gl.Uniform1f uniforms.iTimeDelta delta-time
     _gl.Uniform1f uniforms.iFrame (frame-count as f32)
     _gl.Uniform4f uniforms.iMouse
-        mousex as f32
-        mousey as f32
-        0.0
-        0.0
+        mouse-current-drag.x
+        mouse-current-drag.y
+        mouse-drag-start.x
+        mouse-drag-start.y
 
     gl.clear 0.017 0.017 0.017 1.0
     _gl.DrawArrays _gl.GL_TRIANGLES 0 6
