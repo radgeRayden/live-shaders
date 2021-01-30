@@ -14,6 +14,9 @@ struct Date plain
     day : i32
     second : f32
 
+    inline __unpack (self)
+        _ self.year self.month self.day self.second
+
 fn get-date ()
     local ts : time.timespec
     assert ((time.clock_gettime time.CLOCK_REALTIME &ts) == 0)

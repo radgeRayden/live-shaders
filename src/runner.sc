@@ -15,63 +15,10 @@ let glfw = (import .FFI.glfw)
 
 window.init;
 gl.init;
-
-let shader-scope =
-    ..
-        import glsl
-        import glm
-        do
-            using import glsl
-            using import glm
-            do
-                spice-quote
-                    in fragCoord : vec2
-                        location = 0
-                    out fragColor : vec4
-                        location = 0
-
-                    uniform iResolution : vec3
-                    uniform iTime : f32
-                    uniform iTimeDelta : f32
-                    uniform iFrame : f32
-                    uniform iMouse : vec4
-                    uniform iDate : vec4
-                locals;
-        sc_get_globals;
-
-run-stage;
-
-global shader-program = (wrapper.default-shader)
-_gl.UseProgram shader-program
-
-global uniforms :
-    struct UniformLocations
-        iResolution : i32
-        iTime : i32
-        iTimeDelta : i32
-        iFrame : i32
-        iMouse : i32
-        iDate : i32
-
-fn update-shader ()
-    shader-program = (wrapper.wrap-shader "test.sc" shader-scope)
-
-    _gl.UseProgram shader-program
-    uniforms.iResolution =
-        _gl.GetUniformLocation shader-program "iResolution"
-    uniforms.iTime =
-        _gl.GetUniformLocation shader-program "iTime"
-    uniforms.iTimeDelta =
-        _gl.GetUniformLocation shader-program "iTimeDelta"
-    uniforms.iFrame =
-        _gl.GetUniformLocation shader-program "iFrame"
-    uniforms.iMouse =
-        _gl.GetUniformLocation shader-program "iMouse"
-    uniforms.iDate =
-        _gl.GetUniformLocation shader-program "iDate"
+wrapper.init;
 
 fn update-callback ()
-    try (update-shader)
+    try (wrapper.update-shader "test.sc")
     except (ex) ('dump ex)
 update-callback;
 glfw.SetTime 0:f64
@@ -130,23 +77,15 @@ while (not (window.closed?))
 
     # update uniforms
     # ================================================================================
-    using import glm
-    _gl.Uniform3f uniforms.iResolution (wwidth as f32) (wheight as f32) 1
-    _gl.Uniform1f uniforms.iTime current-time
-    _gl.Uniform1f uniforms.iTimeDelta delta-time
-    _gl.Uniform1f uniforms.iFrame (frame-count as f32)
-
-    _gl.Uniform4f uniforms.iMouse
-        mouse-current-drag.x
-        mouse-current-drag.y
-        mouse-drag-start.x
-        mouse-drag-start.y
-
-    _gl.Uniform4f uniforms.iDate
-        cur-date.year as f32
-        cur-date.month as f32
-        cur-date.day as f32
-        cur-date.second
+    let uniforms =
+        wrapper.Uniforms
+            iResolution = (vec3 wwidth wheight 1)
+            iTime = current-time
+            iTimeDelta = delta-time
+            iFrame = (frame-count as f32)
+            iMouse = (vec4 mouse-current-drag mouse-drag-start)
+            iDate = (vec4 (unpack cur-date))
+    wrapper.update-uniforms uniforms
 
     # =================================================================================
     gl.clear 0.017 0.017 0.017 1.0

@@ -1,4 +1,92 @@
+using import struct
+using import glm
+
 import .gl
+let _gl = (import .FFI.glad)
+
+let default-vshader default-fshader =
+    do
+        using import glsl
+        using import glm
+        fn vertex ()
+            let tl bl br tr =
+                # 0 -- 3
+                # |    |
+                # 1 -- 2
+                vec2 -1  1
+                vec2 -1 -1
+                vec2  1 -1
+                vec2  1  1
+            local quad =
+                arrayof vec2 tl bl br br tr tl
+            position := quad @ gl_VertexID
+
+            uniform iResolution : vec3
+            out fragCoord : vec2
+                location = 0
+
+            fragCoord = (iResolution.xy * ((position + 1) / 2))
+            gl_Position = (vec4 position 0 1)
+
+        fn frag ()
+            in fragCoord : vec2
+                location = 0
+            out fragColor : vec4
+                location = 0
+
+            uniform iResolution : vec3
+            uniform iTime : f32
+            uniform iTimeDelta : f32
+            uniform iFrame : f32
+            uniform iMouse : vec4
+            uniform iDate : vec4
+            fragColor = (vec4 0.017 0.017 0.017 1)
+
+        _ vertex frag
+
+let shader-scope =
+    ..
+        import glsl
+        import glm
+        do
+            using import glsl
+            using import glm
+            do
+                spice-quote
+                    in fragCoord : vec2
+                        location = 0
+                    out fragColor : vec4
+                        location = 0
+
+                    uniform iResolution : vec3
+                    uniform iTime : f32
+                    uniform iTimeDelta : f32
+                    uniform iFrame : f32
+                    uniform iMouse : vec4
+                    uniform iDate : vec4
+                locals;
+        sc_get_globals;
+
+run-stage;
+
+global shader-program : gl.GPUShaderProgram
+
+global uniform-locations :
+    struct UniformLocations
+        iResolution : i32
+        iTime : i32
+        iTimeDelta : i32
+        iFrame : i32
+        iMouse : i32
+        iDate : i32
+
+struct Uniforms
+    iResolution : vec3
+    iTime : f32
+    iTimeDelta : f32
+    iFrame : f32
+    iMouse : vec4
+    iDate : vec4
 
 fn wrap-module (expr eval-scope)
     let ModuleFunctionType = (pointer (raises (function Value) Error))
@@ -79,49 +167,6 @@ fn _load-module (module-name module-path scope)
         error@+ err unknown-anchor
             "while loading module " .. module-path
 
-let default-vshader default-fshader =
-    do
-        using import glsl
-        using import glm
-        fn vertex ()
-            let tl bl br tr =
-                # 0 -- 3
-                # |    |
-                # 1 -- 2
-                vec2 -1  1
-                vec2 -1 -1
-                vec2  1 -1
-                vec2  1  1
-            local quad =
-                arrayof vec2 tl bl br br tr tl
-            position := quad @ gl_VertexID
-
-            uniform iResolution : vec3
-            out fragCoord : vec2
-                location = 0
-
-            fragCoord = (iResolution.xy * ((position + 1) / 2))
-            gl_Position = (vec4 position 0 1)
-
-        fn frag ()
-            in fragCoord : vec2
-                location = 0
-            out fragColor : vec4
-                location = 0
-
-            uniform iResolution : vec3
-            uniform iTime : f32
-            uniform iTimeDelta : f32
-            uniform iFrame : f32
-            uniform iMouse : vec4
-            uniform iDate : vec4
-            fragColor = (vec4 0.017 0.017 0.017 1)
-
-        _ vertex frag
-
-fn default-shader ()
-    gl.GPUShaderProgram default-vshader default-fshader
-
 fn wrap-shader (path scope)
     if (not (sc_is_file path))
         error (.. "file not found: " path)
@@ -149,6 +194,35 @@ fn wrap-shader (path scope)
     else
         unreachable;
 
+fn update-shader (path)
+    shader-program = (wrap-shader "test.sc" shader-scope)
+
+    _gl.UseProgram shader-program
+    uniform-locations.iResolution =
+        _gl.GetUniformLocation shader-program "iResolution"
+    uniform-locations.iTime =
+        _gl.GetUniformLocation shader-program "iTime"
+    uniform-locations.iTimeDelta =
+        _gl.GetUniformLocation shader-program "iTimeDelta"
+    uniform-locations.iFrame =
+        _gl.GetUniformLocation shader-program "iFrame"
+    uniform-locations.iMouse =
+        _gl.GetUniformLocation shader-program "iMouse"
+    uniform-locations.iDate =
+        _gl.GetUniformLocation shader-program "iDate"
+
+fn update-uniforms (uniforms)
+    _gl.Uniform3f uniform-locations.iResolution (unpack uniforms.iResolution)
+    _gl.Uniform1f uniform-locations.iTime uniforms.iTime
+    _gl.Uniform1f uniform-locations.iTimeDelta uniforms.iTimeDelta
+    _gl.Uniform1f uniform-locations.iFrame uniforms.iFrame
+    _gl.Uniform4f uniform-locations.iMouse (unpack uniforms.iMouse)
+    _gl.Uniform4f uniform-locations.iDate (unpack uniforms.iDate)
+
+fn init ()
+    shader-program = (gl.GPUShaderProgram default-vshader default-fshader)
+    _gl.UseProgram shader-program
+
 do
-    let default-shader wrap-shader
+    let update-shader update-uniforms Uniforms init
     locals;
