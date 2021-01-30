@@ -54,6 +54,11 @@ glfw.SetMouseButtonCallback window.main-window
         if ((button == glfw.GLFW_MOUSE_BUTTON_1) and (action == glfw.GLFW_PRESS))
             mouse-drag-start = (vec2 (mouse-position))
 
+glfw.SetKeyCallback window.main-window
+    fn "key-callback" (window keycode scancode action modifiers)
+        if ((keycode == glfw.GLFW_KEY_ESCAPE) and (action == glfw.GLFW_PRESS))
+            glfw.SetWindowShouldClose window true
+
 while (not (window.closed?))
     window.poll-events;
     'poll-events fw
