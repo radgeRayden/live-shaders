@@ -55,10 +55,6 @@ glfw.SetMouseButtonCallback window.main-window
             mouse-drag-start = (vec2 (mouse-position))
 
 while (not (window.closed?))
-    # reset "mouse pressed" event after end of previous frame
-    # the callback that changes the mouse state is called in poll-events
-    mouse-drag-start.y = (- (abs mouse-drag-start.y))
-
     window.poll-events;
     'poll-events fw
 
@@ -91,6 +87,9 @@ while (not (window.closed?))
             iMouse = (vec4 mouse-current-drag mouse-drag-start)
             iDate = (vec4 (unpack cur-date))
     wrapper.update-uniforms uniforms
+
+    # reset "mouse pressed" event
+    mouse-drag-start.y = (- (abs mouse-drag-start.y))
 
     # =================================================================================
     gl.clear 0.017 0.017 0.017 1.0
