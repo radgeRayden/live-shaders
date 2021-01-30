@@ -2,6 +2,7 @@ using import struct
 using import glm
 
 import .gl
+import .utils
 let _gl = (import .FFI.glad)
 
 let default-vshader default-fshader =
@@ -192,10 +193,11 @@ fn wrap-shader (path scope)
         gl.GPUShaderProgram default-vshader
             (_load-module path path scope) as Closure
     else
-        unreachable;
+        let src = (utils.read-file path)
+        gl.GPUShaderProgram default-vshader src
 
 fn update-shader (path)
-    shader-program = (wrap-shader "test.sc" shader-scope)
+    shader-program = (wrap-shader path shader-scope)
 
     _gl.UseProgram shader-program
     uniform-locations.iResolution =

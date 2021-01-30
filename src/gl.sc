@@ -173,7 +173,7 @@ fn init ()
     gl.Enable gl.GL_BLEND
     gl.BlendFunc gl.GL_SRC_ALPHA gl.GL_ONE_MINUS_SRC_ALPHA
     # gl.Enable gl.GL_MULTISAMPLE
-    gl.Enable gl.GL_FRAMEBUFFER_SRGB
+    # gl.Enable gl.GL_FRAMEBUFFER_SRGB
     # TODO: add some colors to this
     # gl.DebugMessageCallbackARB openGL-error-callback null
     local VAO : gl.GLuint

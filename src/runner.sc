@@ -1,5 +1,10 @@
 load-library (module-dir .. "/../libgame.so")
 load-library "libglfw.so"
+
+let name argc argv = (script-launch-args)
+assert (argc > 0) "no source file provided"
+let srcpath = (string (argv @ 0))
+
 run-stage;
 
 using import struct
@@ -18,14 +23,14 @@ gl.init;
 wrapper.init;
 
 fn update-callback ()
-    try (wrapper.update-shader "test.sc")
+    try (wrapper.update-shader srcpath)
     except (ex) ('dump ex)
 update-callback;
 glfw.SetTime 0:f64
 
 using file-watcher
 global fw = (FileWatcher)
-'watch-file fw "test.sc" (EventKind.MODIFIED) update-callback
+'watch-file fw srcpath (EventKind.MODIFIED) update-callback
 
 global last-frame-time : f32
 global frame-count : u32
